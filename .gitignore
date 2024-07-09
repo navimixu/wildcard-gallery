@@ -1,3 +1,7 @@
+# Logic
+cards/
+STRAY_RESOURCES/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
