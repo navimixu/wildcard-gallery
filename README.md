@@ -55,10 +55,12 @@ after hitting **Apply settings** and **Refresh Galley** all wildcards previews w
 - You batch generate preview images for wildcards beaches by selecting the `Wildcards preview utils` in the Script dropdown menu in either the txt2img tab
 - you simply have to choose the cards from the dropdown menu (you can also type while in the dropdown menu to filter items )
 <img  src="screenshots/screen (5).png"/>
+
 - the in the following screenshot only 1 preview for the "knight" wildcard will be generated.
 
 - you can also use the parent wildcard path to easly select multiple cards at once for the preview generation
 <img  src="screenshots/screen (8).png"/>
+
 - the in the following screenshot all the wildcards nested under "fantesy_jobs" will have thier previews generated
 - simply check the `use wildcard branch selector` box and enter the parent wildcard activation path in the `wildcard parent branch` text area
 [ *if you are unsure about the wildcard activation path you can click on the wildcard in the galley that will insert the activation path into the prompt area for you to view * ]
