@@ -59,7 +59,7 @@ after hitting **Apply settings** and **Refresh Galley** all wildcards previews w
 
 - you can also use the parent wildcard path to easly select multiple cards at once for the preview generation
 <img  src="screenshots/screen (8).png"/>
-- the in the following screenshot all the wildcards nested under "fantesy_jobs" will have thier previews generated 
+- the in the following screenshot all the wildcards nested under "fantesy_jobs" will have thier previews generated
 - simply check the `use wildcard branch selector` box and enter the parent wildcard activation path in the `wildcard parent branch` text area
 [ *if you are unsure about the wildcard activation path you can click on the wildcard in the galley that will insert the activation path into the prompt area for you to view * ]
 
