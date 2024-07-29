@@ -200,4 +200,6 @@ def collect_stray_previews (wild_paths, cards_dir = CARDS_FOLDER):
         print(f'______ {len(stay_previews_list)} stray previews collected______')
         print(f'moved into: [{STRAY_RES_folder}]')
 
+
+
 if(not WILDCARDS_FOLDER): WILDCARDS_FOLDER = find_ext_wildcard_paths()

@@ -52,12 +52,14 @@ after hitting **Apply settings** and **Refresh Galley** all wildcards previews w
 
 ### Preview generation
 
-- You batch generate preview images for wildcards beaches by selecting the `Wildcards preview utils` in the Script dropdown menu in either the txt2img or img2img tab
-
+- You batch generate preview images for wildcards beaches by selecting the `Wildcards preview utils` in the Script dropdown menu in either the txt2img tab
+- you simply have to choose the cards from the dropdown menu (you can also type while in the dropdown menu to filter items )
 <img  src="screenshots/screen (5).png"/>
 
-- you simply have to enter the parent wildcard activation path (without the "__" part)
+- you can also use the parent wildcard path to easly select multiple cards at once for the preview generation
+<img  src="screenshots/screen (8).png"/>
 
+- simply check the `use wildcard branch selector` box and enter the parent wildcard activation path in the `wildcard parent branch` text area
 [ *if you are unsure about the wildcard activation path you can click on the wildcard in the galley that will insert the activation path into the prompt area for you to view * ]
 
 - now after hitting **Generate** the script will:

@@ -1,6 +1,6 @@
 ﻿from modules.ui_extra_networks import ExtraNetworksPage, quote_js, register_page
 from modules import shared, script_callbacks
-import modules.scripts as scripts
+import modules.scripts as scripts 
 
 from scripts.misc_utils import (
     collect_Wildcards,
@@ -14,7 +14,7 @@ from scripts.misc_utils import (
     WILD_STR,
 )
 from scripts.preview_processing import (
-    txt2img_process
+    txt2img_process, set_preview_as_null
 )
 import shutil
 import os
@@ -176,6 +176,11 @@ def on_ui_settings():
 
 
 #-------------------------|Utility_Script Block_Start|--------------------------
+
+
+def toggle_wildpath_box (toggle_status):
+    return (gr.update(visible= toggle_status))
+
 class Script(scripts.Script):
     is_txt2img = False
 
@@ -185,9 +190,15 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
         with gr.Column():
-            selected_wild_path = gr.Textbox(label="wildcard" , interactive = True , info="specify the wildcard or wildcard branch to process" )
-            extra_Info          = gr.Markdown( value = "the entred wildcard will include its children if it has any" )
-            task_override = gr.Checkbox(label="override exisiting previews",value = False,info ="override exisiting previews")
+            use_wild_path       = gr.Checkbox (label ="use wildcard branch selector",value = False)
+            selected_wild_path  = gr.Textbox (label   ="wildcard parent branch" , interactive = True , info="specify the wildcard or a wildcard root to process" , visible= False)
+            with gr.Row():
+                selected_wildcard = gr.Dropdown(label ="wildcards" , interactive = True , choices= collect_Wildcards(WILDCARDS_FOLDER), multiselect=True)
+            extra_Info          = gr.Markdown(value = "the entred wildcard will include its children if it has any" )
+            with gr.Row():
+                task_override       = gr.Checkbox(label ="override exisiting previews"  ,value = False,info ="override exisiting previews")
+                task_nullify       = gr.Checkbox (label ="nullify previews"             ,value = False,info ="insert a null preview instead of generating one")
+            
             with gr.Accordion(open=False, label="Extra options"):
                 with gr.Column():
                     replace_str_opt = gr.Textbox(label="insert by replacing" , interactive = True , info="insert by replacing a text passage" )
@@ -198,26 +209,35 @@ class Script(scripts.Script):
                             interactive = True , 
                             info="adds the preview to the chosen preview_channel" )
 
-
+        use_wild_path.change(fn=toggle_wildpath_box , inputs=use_wild_path, outputs= selected_wild_path)
         
-        return [selected_wild_path ,extra_Info ,task_override ,replace_str_opt, preview_suffix]
+        return [selected_wild_path ,extra_Info ,task_override ,replace_str_opt, preview_suffix, selected_wildcard, use_wild_path, task_nullify]
 
     # Function to show the script
     def show(self, is_img2img):
         return not is_img2img
 
     # Function to run the script
-    def run(self, p,selected_wild_path ,extra_Info, task_override,  replace_str_opt, preview_suffix):
+    def run(self, p,selected_wild_path ,extra_Info, task_override,  replace_str_opt, preview_suffix, selected_wildcard, use_wild_path, task_nullify):
         # Make a process_images Object
-        if(selected_wild_path and not selected_wild_path==""):
+        if((selected_wild_path and not selected_wild_path=="") or (not use_wild_path and selected_wildcard)):
             wild_paths = collect_Wildcards(WILDCARDS_FOLDER)
-            selected_wild_paths = [item for item in wild_paths if item.lower().startswith(selected_wild_path.lower())]
+            selected_wild_path = selected_wild_path.replace("*","").replace(WILD_STR,"") 
+
+            selected_wild_paths = [item for item in wild_paths if (item.lower().startswith(selected_wild_path.lower()) and use_wild_path) or (item in selected_wildcard if selected_wildcard else False)   ]
+
             if(selected_wild_paths):
-                return txt2img_process(p,selected_wild_paths ,replace_str_opt , task_override ,preview_suffix)
+                if(task_nullify):
+                    set_preview_as_null(selected_wild_paths, task_override ,preview_suffix)
+                    return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix)
+                else:
+                    return txt2img_process(p,selected_wild_paths ,replace_str_opt , task_override ,preview_suffix)
             else:
                 print("___Skipping Wildcard preview generation [wildcard empty or not found]___")
+                return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix)
         else:
             print("___Skipping Wildcard preview generation [lack of perameters]___")
+            return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix)
 #-------------------------|Utility_Script Block_End|----------------------------
 
 
