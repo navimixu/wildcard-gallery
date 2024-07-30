@@ -78,13 +78,16 @@ def get_yaml_paths(yaml_file_path):
             paths.add(path)
 
     # Loads a YAML file!!
-    with open(yaml_file_path, 'r') as file:
-        data = yaml.safe_load(file)
-
-    paths = set()
-    traverse(data)
-    
-    return list(paths)
+    try:
+        with open(yaml_file_path, 'r') as file:
+            data = yaml.safe_load(file)
+        paths = set()
+        traverse(data)
+        return list(paths)
+    except yaml.YAMLError as e:
+        print(f"Error occured while trying to load the file {yaml_file_path} ")
+        print(f"Exception arised : {e} ")
+        return []
 
 def get_safe_name(selected_wild_path, wild_paths_list, inclusion_level = 2):
 

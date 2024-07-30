@@ -1,5 +1,9 @@
 
-
+.hover-point:nth-child(2):hover ~ .box-contents {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, .3);
+    transform-origin: center top;
+    transform: perspective(1000px) rotateX(10deg);
+  }
 
 #settings_WildcardsCards .prose.gradio-html {
     position: absolute;
@@ -24,6 +28,7 @@
     height: 18em;
     width: 14em;
     margin: 0.5em;
+    border-radius: 0.8rem;
 }
 
     #txt2img_wildcards_cards_html .card .actions .additional{
