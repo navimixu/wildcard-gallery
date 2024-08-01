@@ -7,7 +7,7 @@ from scripts.misc_utils import (
     create_dir_and_file,
     clean_residue,
     get_safe_name_2,
-    collect_stray_previews,
+    collect_stray_previews, collect_previews_by_channel, delete_previews_by_channel, 
     WILDCARDS_FOLDER,
     CARDS_FOLDER,
     RES_FOLDER,
@@ -23,6 +23,8 @@ import gradio as gr
 addon_name = "Wildcards Gallery"
 extra_network_name = "Wildcards"
 preview_channels = ["default", "preview", "preview 1", "preview 2", "preview 3"]
+log_suffix = "[LOG] "
+error_suffix = "[ERR] "
 
 def setting_action_clean_residue():
     wild_paths = collect_Wildcards(WILDCARDS_FOLDER)
@@ -177,9 +179,49 @@ def on_ui_settings():
 
 #-------------------------|Utility_Script Block_Start|--------------------------
 
+def btn_count_wildcards (use_wild_path, selected_wildcard, selected_wild_path):
+    msg = error_suffix+"No wildcards selected"
+    selected_wildcards_list  = selection_sequance (use_wild_path, selected_wildcard, selected_wild_path)
+    if(selected_wildcards_list):
+        msg = f"Prameters are selecting { len(selected_wildcards_list) } wildcards"
+    
+    return (gr.update(value= log_suffix + msg))
+
+def btn_collect_previews (preview_suffix, use_wild_path, selected_wildcard, selected_wild_path):
+    msg = error_suffix+"No wildcards selected"
+    selected_wildcards_list  = selection_sequance (use_wild_path, selected_wildcard, selected_wild_path)
+    
+    if(selected_wildcards_list):
+        msg=""
+        for channel_item in preview_suffix:
+            msg = msg + collect_previews_by_channel(channel=channel_item,  wildpath_selector= selected_wildcards_list) +"\n"
+    
+    return (gr.update(value= log_suffix+msg))
+
+def btn_delete_previews (preview_suffix, use_wild_path, selected_wildcard, selected_wild_path):
+    msg = error_suffix+"No wildcards selected"
+    selected_wildcards_list  = selection_sequance (use_wild_path, selected_wildcard, selected_wild_path)
+    
+    if(selected_wildcards_list):
+        msg=""
+        for channel_item in preview_suffix:
+            msg =  log_suffix + delete_previews_by_channel(channel=channel_item,  wildpath_selector= selected_wildcards_list)+"\n"+ msg 
+    return (gr.update(value= msg))
+
+def toggle_search_replace_box (insertion_type):
+    return (gr.update(visible= insertion_type == "SREACH & REPLACE"))
 
 def toggle_wildpath_box (toggle_status):
     return (gr.update(visible= toggle_status))
+
+def selection_sequance(use_wild_path, selected_wildcard, selected_wild_path):
+    selected_wildcard_final_list = []
+    if((selected_wild_path and not selected_wild_path=="") or (not use_wild_path and selected_wildcard)):
+        wild_paths = collect_Wildcards(WILDCARDS_FOLDER)
+        selected_wild_path = selected_wild_path.replace("*","").replace(WILD_STR,"").strip()
+
+        selected_wildcard_final_list = [item for item in wild_paths if (item.lower().startswith(selected_wild_path.lower()) and use_wild_path) or (item in selected_wildcard if selected_wildcard else False)   ]
+    return selected_wildcard_final_list
 
 class Script(scripts.Script):
     is_txt2img = False
@@ -194,50 +236,67 @@ class Script(scripts.Script):
             selected_wild_path  = gr.Textbox (label   ="wildcard parent branch" , interactive = True , info="specify the wildcard or a wildcard root to process" , visible= False)
             with gr.Row():
                 selected_wildcard = gr.Dropdown(label ="wildcards" , interactive = True , choices= collect_Wildcards(WILDCARDS_FOLDER), multiselect=True)
-            extra_Info          = gr.Markdown(value = "the entred wildcard will include its children if it has any" )
-            with gr.Row():
-                task_override       = gr.Checkbox(label ="override exisiting previews"  ,value = False,info ="override exisiting previews")
-                task_nullify       = gr.Checkbox (label ="nullify previews"             ,value = False,info ="insert a null preview instead of generating one")
             
+            with gr.Row():
+                insertion_type =  gr.Dropdown (
+                                choices = ["AFTER", "BEFORE", "SREACH & REPLACE"],
+                                label="wildcard insertion method",
+                                value= "AFTER", 
+                                interactive = True , 
+                                info="how and where to insert the wildcard within the prompt" )
+                replace_str_opt = gr.Textbox(label="S/R text" , interactive = True , info="searches and replace the provided text by the wildcard in the prompt", visible= False )
+
             with gr.Accordion(open=False, label="Extra options"):
                 with gr.Column():
-                    replace_str_opt = gr.Textbox(label="insert by replacing" , interactive = True , info="insert by replacing a text passage" )
                     preview_suffix = gr.Dropdown (
-                            choices = preview_channels,
-                            label="preview channel",
-                            value= getattr(shared.opts, "wcc_preview_channel", "default"), 
-                            interactive = True , 
-                            info="adds the preview to the chosen preview_channel" )
+                                choices = preview_channels,
+                                label="preview channel",
+                                value= getattr(shared.opts, "wcc_preview_channel", "default"), 
+                                interactive = True , 
+                                info="generate the preview for the selected channel", 
+                                multiselect=True )
+                    task_override       = gr.Checkbox(label ="override exisiting previews"  ,value = False)
+                    task_nullify        = gr.Checkbox (label ="return as null previwes"     ,value = False)
+
+            with gr.Accordion(open=False, label="Actions"):
+                    with gr.Column():
+                        act_msg     = gr.Markdown(value = log_suffix+" ",  elem_id="wld_gal_notif_area" )
+                        with gr.Row():
+                            act_count   = gr.Button(value = "count selected cards")
+                            act_collect = gr.Button(value = "collect previews")
+                        act_delete = gr.Button(value = "delete previews in channel", elem_classes= "wld_gal_ngbutton")
 
         use_wild_path.change(fn=toggle_wildpath_box , inputs=use_wild_path, outputs= selected_wild_path)
+        insertion_type.change(fn= toggle_search_replace_box, inputs=insertion_type, outputs= replace_str_opt )
+        act_collect.click(btn_collect_previews, inputs= [preview_suffix, use_wild_path, selected_wildcard, selected_wild_path], outputs=act_msg)
+        act_count.click(btn_count_wildcards,   inputs= [use_wild_path, selected_wildcard, selected_wild_path], outputs=act_msg)
+        act_delete.click(btn_delete_previews, inputs= [preview_suffix, use_wild_path, selected_wildcard, selected_wild_path], outputs=act_msg)
         
-        return [selected_wild_path ,extra_Info ,task_override ,replace_str_opt, preview_suffix, selected_wildcard, use_wild_path, task_nullify]
-
+        
+        return [selected_wild_path , task_override ,replace_str_opt, preview_suffix, selected_wildcard, use_wild_path, task_nullify, insertion_type]
+    
+    
+    
     # Function to show the script
     def show(self, is_img2img):
         return not is_img2img
 
     # Function to run the script
-    def run(self, p,selected_wild_path ,extra_Info, task_override,  replace_str_opt, preview_suffix, selected_wildcard, use_wild_path, task_nullify):
+    def run(self, p,selected_wild_path , task_override,  replace_str_opt, preview_suffix, selected_wildcard, use_wild_path, task_nullify, insertion_type):
         # Make a process_images Object
-        if((selected_wild_path and not selected_wild_path=="") or (not use_wild_path and selected_wildcard)):
-            wild_paths = collect_Wildcards(WILDCARDS_FOLDER)
-            selected_wild_path = selected_wild_path.replace("*","").replace(WILD_STR,"") 
-
-            selected_wild_paths = [item for item in wild_paths if (item.lower().startswith(selected_wild_path.lower()) and use_wild_path) or (item in selected_wildcard if selected_wildcard else False)   ]
-
-            if(selected_wild_paths):
-                if(task_nullify):
-                    set_preview_as_null(selected_wild_paths, task_override ,preview_suffix)
-                    return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix)
-                else:
-                    return txt2img_process(p,selected_wild_paths ,replace_str_opt , task_override ,preview_suffix)
+        selected_wild_paths = selection_sequance (use_wild_path, selected_wildcard, selected_wild_path)
+        if not preview_suffix : preview_suffix = ["default"]
+        if(selected_wild_paths):
+            if(task_nullify):
+                for channel_item in preview_suffix:
+                    set_preview_as_null(selected_wild_paths, task_override ,channel_item)
+                return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix, insertion_type)
             else:
-                print("___Skipping Wildcard preview generation [wildcard empty or not found]___")
-                return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix)
+                return txt2img_process(p,selected_wild_paths ,replace_str_opt , task_override ,preview_suffix, insertion_type)
         else:
-            print("___Skipping Wildcard preview generation [lack of perameters]___")
-            return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix)
+            print("___Skipping Wildcard preview generation [wildcard not found or invalid parameters]___")
+            return txt2img_process(p,[] ,replace_str_opt , task_override ,preview_suffix, insertion_type)
+
 #-------------------------|Utility_Script Block_End|----------------------------
 
 

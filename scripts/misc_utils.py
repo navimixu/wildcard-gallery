@@ -2,7 +2,7 @@ from modules import scripts
 from modules import shared
 
 import os
-import re
+import shutil
 import yaml
 from pathlib import Path
 import errno
@@ -14,6 +14,7 @@ WILDCARDS_FOLDER = getattr(shared.opts, "wcc_wildcards_directory","").split("\n"
 WILDCARDS_FOLDER = [wdir for wdir in WILDCARDS_FOLDER if os.path.isdir(wdir)]
 WILD_STR = getattr(shared.opts, "dp_parser_wildcard_wrap", "__")
 STRAY_RES_folder = os.path.join(scripts.basedir(), "STRAY_RESOURCES")
+COLL_PREV_folder = os.path.join(scripts.basedir(), "COLLECTED_PREVIEWS")
 
 def find_ext_wildcard_paths():
     try:
@@ -172,6 +173,66 @@ def clean_residue (cards_dir, wildcards_list, extentsion =".card"):
 
     if(stay_cards_list): print(f'______ {len(stay_cards_list)} Wildcard Cards Altered______')
     if(residue_folders_list): print(f'______ {len(residue_folders_list)} Residue Folders Cleared______')
+
+def collect_previews_by_channel (channel, wildpath_selector, cards_dir = CARDS_FOLDER):
+    collected_previews_list = []
+    msg = "no wildcard previews were collected"
+    channel_suffix = "."+channel.replace(" ","") if (not channel=="") and (not channel=="default") and channel  else ""
+    os.makedirs(COLL_PREV_folder, exist_ok=True) 
+    for root, dirs, files in os.walk(cards_dir):
+        for file in files:
+                if file.lower().endswith(f"{channel_suffix}.jpeg") or file.lower().endswith(f"{channel_suffix}.jpg")  or file.lower().endswith(f"{channel_suffix}.png")  or file.lower().endswith(f"{channel_suffix}.gif") and (not channel=="default" or (channel=="default" and file.lower().count(".")==1) ):
+                    match_found = False
+                    for wpath in wildpath_selector :
+                        save_file_name= os.path.join(os.path.abspath(cards_dir), wpath.replace("/", os.path.sep))+"."
+                        file_path  = os.path.abspath(os.path.join(root, file))
+                        if (file_path.lower().startswith(save_file_name.lower())):
+                            collected_previews_list.append(file_path)
+                            match_found = True
+                            break
+
+                    if(match_found):    
+                        try:
+                            dest_file_path = os.path.join(os.path.relpath(collected_previews_list[-1], CARDS_FOLDER), COLL_PREV_folder)
+                            shutil.copy2(collected_previews_list[-1], dest_file_path)
+                        except OSError:
+                            print(f"failed to collect [{os.path.join(root, file)}]")
+                                
+
+    if(collected_previews_list):
+        msg = f'______ {len(collected_previews_list)} previews from channel[{channel}] were collected______'
+        print(msg)
+        print(f'copied into: [{COLL_PREV_folder}]')
+    return msg
+
+def delete_previews_by_channel (channel, wildpath_selector, cards_dir = CARDS_FOLDER):
+    collected_previews_list = []
+    msg = "no wildcard previews were deleted"
+    channel_suffix = "."+channel.replace(" ","") if (not channel=="") and (not channel=="default") and channel  else ""
+    os.makedirs(COLL_PREV_folder, exist_ok=True) 
+    for root, dirs, files in os.walk(cards_dir):
+        for file in files:
+                if file.lower().endswith(f"{channel_suffix}.jpeg") or file.lower().endswith(f"{channel_suffix}.jpg")  or file.lower().endswith(f"{channel_suffix}.png")  or file.lower().endswith(f"{channel_suffix}.gif") and (not channel=="default" or (channel=="default" and file.lower().count(".")==1) ):
+                    match_found = False
+                    for wpath in wildpath_selector :
+                        save_file_name= os.path.join(os.path.abspath(cards_dir), wpath.replace("/", os.path.sep))+"."
+                        file_path  = os.path.abspath(os.path.join(root, file))
+                        if (file_path.lower().startswith(save_file_name.lower())):
+                            collected_previews_list.append(file_path)
+                            match_found = True
+                            break
+
+                    if(match_found):    
+                        try:
+                            silentremove(collected_previews_list[-1])
+                        except OSError:
+                            print(f"failed to delete [{os.path.join(root, file)}]")
+                                
+
+    if(collected_previews_list):
+        msg = f'______ {len(collected_previews_list)} previews from channel[{channel}] were deleted______'
+        print(msg)
+    return msg
 
 def collect_stray_previews (wild_paths, cards_dir = CARDS_FOLDER):
     stay_previews_list = []

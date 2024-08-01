@@ -1,4 +1,18 @@
 
+.wld_gal_ngbutton {
+    background: #802727 !important;
+}
+.wld_gal_notif_area {
+  border: 1px solid #435532;
+  border-radius: 8px;
+  margin: 5px;
+  margin-bottom: 10px !important;
+  min-height: 5em;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .hover-point:nth-child(2):hover ~ .box-contents {
     box-shadow: 0 15px 50px rgba(0, 0, 0, .3);
     transform-origin: center top;
