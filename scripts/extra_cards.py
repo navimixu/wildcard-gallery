@@ -4,6 +4,7 @@ import modules.scripts as scripts
 
 from scripts.misc_utils import (
     collect_Wildcards,
+    collect_Wildcards_with_content,
     create_dir_and_file,
     clean_residue,
     get_safe_name_2,
@@ -51,12 +52,11 @@ class WildcardsCards(ExtraNetworksPage):
 
     def refresh(self):
         self.cards = []
-        wild_paths = collect_Wildcards(WILDCARDS_FOLDER)
-        self.cards = wild_paths
-        clean_residue(CARDS_FOLDER, wild_paths)
+        wildcards_data = collect_Wildcards_with_content(WILDCARDS_FOLDER)  # Collect paths and content
+        self.cards = wildcards_data
+        clean_residue(CARDS_FOLDER, [path for path, _ in wildcards_data])
 
-
-    def create_item(self, wild_path: str, index=1, enable_filter=True):
+    def create_item(self, wild_path: str, content: str, index=1, enable_filter=True):
         filePath = os.path.abspath(create_dir_and_file(CARDS_FOLDER, wild_path))
         path, ext = os.path.splitext(filePath)
         prompt = f"__{wild_path}__"
@@ -67,14 +67,17 @@ class WildcardsCards(ExtraNetworksPage):
         #else:
         #    category, name = '', wild_path
 
-        name , category = get_safe_name_2(wild_path, self.cards)
+        name, category = get_safe_name_2(wild_path, [path for path, _ in self.cards])
+
+        # Ensure description is a string
+        description = content if isinstance(content, str) else "\n".join(content) if isinstance(content, list) else ""
 
         return {
             "name": name,
             "filename": filePath,
             "shorthash": f"{hash(filePath)}",
-            "preview": self.find_preview(path+"."+suffix) if self.find_preview(path+"."+suffix) else self.find_preview(path),
-            "description": self.find_description(path),
+            "preview": self.find_preview(path + "." + suffix) if self.find_preview(path + "." + suffix) else self.find_preview(path),
+            "description": description,
             "search_terms": [self.search_terms_from_path(filePath)],
             "prompt": quote_js(prompt),
             "local_preview": f"{path}.{suffix}.{shared.opts.samples_format}",
@@ -89,9 +92,9 @@ class WildcardsCards(ExtraNetworksPage):
     def list_items(self):
         i = 0
 
-        for FILE in self.cards:
+        for wild_path, content in self.cards:
             i += 1
-            yield self.create_item(FILE, i)
+            yield self.create_item(wild_path, content, i)
 
     def allowed_directories_for_previews(self):
         return [CARDS_FOLDER]

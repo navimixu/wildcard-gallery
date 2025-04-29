@@ -69,6 +69,32 @@ def collect_Wildcards(wildcards_dirs):
                             collected_paths += get_yaml_paths(os.path.join(root, file))
     return list(collected_paths)
 
+def collect_Wildcards_with_content(wildcards_dirs):
+    collected_data = []
+    whitelist = [item for item in getattr(shared.opts, "wcc_wildcards_whitelist", "").split("\n") if item]
+    blacklist = [item for item in getattr(shared.opts, "wcc_wildcards_blacklist", "").split("\n") if item]
+
+    if not wildcards_dirs:
+        print("___Wildcard Directories is not setup yet!___")
+
+    for wildcards_dir in wildcards_dirs:
+        for root, dirs, files in os.walk(wildcards_dir):
+            for file in files:
+                if file.lower().endswith(".txt"):
+                    wild_path_txt = os.path.relpath(os.path.join(root, file), wildcards_dir).replace(os.path.sep, "/").replace(".txt", "")
+                    if ((wild_path_txt in whitelist) or not whitelist) and not (wild_path_txt in blacklist):
+                        with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        collected_data.append((wild_path_txt, content))
+                elif file.lower().endswith(".yaml"):
+                    wild_yaml_name, ext = os.path.splitext(file)
+                    wild_yaml_name = wild_yaml_name.split(os.path.pathsep)[-1]
+                    if ((wild_yaml_name in whitelist) or not whitelist) and not (wild_yaml_name in blacklist):
+                        yaml_data = get_yaml_paths_with_content(os.path.join(root, file))
+                        for path, content in yaml_data:
+                            collected_data.append((path, content))
+    return collected_data
+
 def get_yaml_paths(yaml_file_path):
     def traverse(data, path=''):
         if isinstance(data, dict):
@@ -88,6 +114,27 @@ def get_yaml_paths(yaml_file_path):
     except yaml.YAMLError as e:
         print(f"Error occured while trying to load the file {yaml_file_path} ")
         print(f"Exception arised : {e} ")
+        return []
+
+def get_yaml_paths_with_content(yaml_file_path):
+    def traverse(data, path=''):
+        if isinstance(data, dict):
+            for key, value in data.items():
+                new_path = f"{path}/{key}" if path else key
+                traverse(value, new_path)
+        else:
+            paths_with_content.append((path, data))
+
+    # Loads a YAML file and retrieves paths with their content
+    try:
+        with open(yaml_file_path, 'r', encoding='utf-8') as file:
+            data = yaml.safe_load(file)
+        paths_with_content = []
+        traverse(data)
+        return paths_with_content
+    except yaml.YAMLError as e:
+        print(f"Error occurred while trying to load the file {yaml_file_path}")
+        print(f"Exception raised: {e}")
         return []
 
 def get_safe_name(selected_wild_path, wild_paths_list, inclusion_level = 2):
