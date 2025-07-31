@@ -1,5 +1,6 @@
 # Logic
-cards/
+cards/*
+!cards/.gitkeep
 STRAY_RESOURCES/
 
 # Byte-compiled / optimized / DLL files
