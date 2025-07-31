@@ -17,6 +17,12 @@ This Automatic1111 extension primary adds a new extra networks gallery for wildc
 - This extension extends on the wildcard functionality so it goes without saying that you already have the **[sd-dynamic-prompts](https://github.com/adieyal/sd-dynamic-prompts)** extension in your WebUi ecosystem if not then you'll need to install the .
 - This extension was made with Gradio 3.x in mind things may break with higher versions
 
+## Settings
+- to limit indexation to specific wildcard branches you can add the parent activation path wildcard to the Whitelist (default behavior)
+ - **important!!** you wont see any wildcard in the gallery unless you add its **file name** to whitelist in the **webui settings** and restart it
+- to exclude wildcards from indexation you can add their activation path to the Blacklist
+- you can toggle the Downscale preview images to resize and compress generated previews to take far less size on the disk
+<img src="screenshots/ml0.jpg"/>
 
 ## Wildcard Filter Tab
 
@@ -203,3 +209,5 @@ This is a **txt2img** script used in conjunction with the **Wildcard Filter Tab*
        - (Sometimes you may need to deselect and reselect a card for the info to refresh.)
     
     <img src="screenshots/st4.jpg"/>
+
+
