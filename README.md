@@ -185,15 +185,21 @@ This is a **txt2img** script used in conjunction with the **Wildcard Filter Tab*
   - Make sure to switch to the channel where you want the resulting image(s) to be saved.  
   - Enabling **Override Existing Previews** will force regeneration and replacement of previews for all selected wildcards, even if they already have a preview in the chosen channel.
 
-  - **Simplified Usage Steps**:
+  - **Simplified Usage Steps:** 
     1. Select the desired cards in the **Wildcard Filter Tab**.
     <img src="screenshots/st1.jpg"/>
+    
     2. Add the base positive and negative prompts for image generation.
     <img src="screenshots/st2.jpg"/>
+    
     3. Activate the **Wildcard Preview Utils** script, choose **Preview Generation**, and set the desired **channel** for output.  
        - You can also check how many cards are included in the generation queue by clicking **Count Selected Cards**.
+    
     <img src="screenshots/st3.jpg"/>
+    
     4. Click **Generate** and wait for the generation queue to finish.
+
     5. Back in **Wildcard Filter Tab**, confirm that previews were assigned by switching to the correct **channel**.  
        - (Sometimes you may need to deselect and reselect a card for the info to refresh.)
+    
     <img src="screenshots/st4.jpg"/>
