@@ -1,0 +1,52 @@
+[
+    {
+        "config_name": "type",
+        "bg_color": "#094a4da3",
+        "tx_color": "#3aeef7",
+        "masked": false,
+        "members": [
+            "style",
+            "chara",
+            "blend",
+            "dup",
+            "sequence"
+        ],
+        "added_prompt": ""
+    },
+    {
+        "config_name": "base_models",
+        "bg_color": "#17ff9269",
+        "tx_color": "#17ff92",
+        "masked": false,
+        "members": [
+            "ILXL",
+            "SD",
+            "PonyXL",
+            "NAIXL"
+        ],
+        "added_prompt": ""
+    },
+
+    {
+        "config_name": "fav",
+        "bg_color": "#ff780057",
+        "tx_color": "#fff01b",
+        "masked": false,
+        "members": [
+            "fav"
+        ],
+        "added_prompt": ""
+    },
+    {
+        "config_name": "configtags",
+        "bg_color": "##6c43ffbf",
+        "tx_color": "#f95bef",
+        "masked": false,
+        "members": [
+            "vr_ratio",
+            "hr_ratio",
+            "unknown"
+        ],
+        "added_prompt": ""
+    }
+]
