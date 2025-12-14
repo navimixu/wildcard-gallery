@@ -1,5 +1,6 @@
 import gradio as gr
 import math 
+import os
 from scripts.misc_utils import  (   load_tags, save_tags, save_tag_config, process_selector,WildcardEntry, TagConfig,update_wildcard_yaml,create_dir_and_file, unpack_wildcard_pack,
                                     collect_stray_previews, export_cards_pack, wildpack_info_scan, html_simple_list,
                                     link_img, IMG_CHANNELS,  WILD_STR, CARDS_FOLDER, EXT_NAME, ICON_LIB)
@@ -798,8 +799,10 @@ def act_misc_collect_imgs():
 
 
 def act_upload_wildpack (selected_file_path):
-    print(f"Loaded {selected_file_path.name}")
-    scanned_cards, scanned_imgs, got_tags  = wildpack_info_scan(selected_file_path.name)
+    # Fixed for Gradio 4
+    file_path = selected_file_path if isinstance(selected_file_path, str) else selected_file_path.name
+    print(f"Loaded {os.path.basename(file_path)}")
+    scanned_cards, scanned_imgs, got_tags  = wildpack_info_scan(file_path)
     if scanned_cards:
         html_content = f"Wildcard Pack contains: <br> - {len(scanned_cards)} Cards 🎴 <br> - {len(scanned_imgs)} Thumbnails 🖼 "
         html_content += "<br> - Has tags metadata 🏷 <br>" if got_tags else ""
@@ -821,9 +824,11 @@ def act_clear_wildpack (selected_file_path):
         )
 
 def act_import_wildpack ( selected_file_path ):
-    print(f"importing {selected_file_path.name}")
+    # Fixed for Gradio 4
+    file_path = selected_file_path if isinstance(selected_file_path, str) else selected_file_path.name
+    print(f"importing {os.path.basename(file_path)}")
     try:
-        unpack_wildcard_pack(selected_file_path.name)
+        unpack_wildcard_pack(file_path)
         gr.Info("Wildcards imported successfully")
         if callable(rebuild_callback):
             rebuild_callback(shallow_refresh = False)
@@ -991,7 +996,7 @@ def on_ui_tabs():
             
         with gr.Accordion("Import Wildcards Pack", open=False):
             with gr.Row():
-                file_browse_wp = gr.File(file_count="single", type='file', file_types=[".zip"], label="Wildcard pack", show_label=True) 
+                file_browse_wp = gr.File(file_count="single", file_types=[".zip"], label="Wildcard pack", show_label=True) 
             with gr.Row():
                 html_pack_info = gr.HTML(visible=False)
             #with gr.Row():
