@@ -1,10 +1,10 @@
 # Wildcard Gallery V2.1.0
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/megvadulthangya/wildcard-gallery)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/navimixu/wildcard-gallery)
 
 ## What is this
 
-This extension is optimized for **Forge** (Gradio 4.40+ compatibility) and adds a new extra networks gallery for wildcards along with preview thumbnails and other features for an enhanced wildcards management and user experience.
+An enhanced wildcard management extension for Automatic1111, Forge, and Forge Neo. Fully compatible with Gradio 3.x and 4.x, it adds a dedicated gallery with preview thumbnails and a modernized user interface.
 
 ## Installation
 - `git clone` this repo to the `extensions` folder in your Web UI installation, or paste the its link to the `extensions/Install form URL` tab in WebUi
@@ -17,19 +17,19 @@ This extension is optimized for **Forge** (Gradio 4.40+ compatibility) and adds 
 - This extension has been updated for **Gradio 4.40+** compatibility, making it fully functional with modern WebUIs like **Forge**.
 
 ## Settings
-- The extension automatically scans, indexes, and loads *all* wildcards found in your directory into the gallery recursively. There is no whitelist/blacklist to maintain — use the in-gallery **Visibility Manager** (see below) to hide cards you don't want to see.
-- you can toggle the Downscale preview images to resize and compress generated previews to take far less size on the disk
+The extension automatically scans and indexes all wildcards from the sd-dynamic-prompts/wildcards directory recursively.
+
+You can manage your collection via the Wildcards Filter, which allows you to list all items and curate a personalized blacklist. Clicking the Blacklist button reveals advanced management tools, including:
+
+Select all: Quickly select all visible wildcards.
+
+Add to / Remove from blacklist: Easily toggle the visibility of selected cards.
+
+Show Blacklist: View and manage your currently hidden items.
+
+To optimize performance, you can toggle Downscale preview images to resize and compress thumbnails, significantly reducing disk space usage.
 <img src="screenshots/ml0.jpg"/>
 
-## Visibility Manager
-
-The Wildcards Filter tab includes a **Visibility Mode** toggle that lets you curate which wildcards show up in both the Filter tab gallery and the txt2img/img2img *Wildcards* Extra Networks tab — without deleting any files.
-
-- Toggle **Visibility Mode** on to reveal the hide/unhide action row under the gallery.
-- Select one or more cards and click **Hide Selected** to hide them, or **Unhide Selected** to bring them back.
-- Use **Show Hidden Only** / **Show All (excl. hidden)** to switch between browsing the hidden set and the normal (visible) set.
-- Clicking a card while Visibility Mode is on will *not* insert it into the prompt — so you can safely click-to-select for bulk hide/unhide operations.
-- Hidden wildcard paths are persisted in `metadata/hidden_wildcards.json` and survive WebUI restarts. The file is a plain JSON list; removing an entry re-enables the wildcard.
 
 ## Wildcard Filter Tab
 
